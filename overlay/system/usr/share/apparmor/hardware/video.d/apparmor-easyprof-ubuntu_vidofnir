@@ -1,0 +1,2 @@
+  # Video decoding
+  /dev/dma_heap/mtk_mm     r,

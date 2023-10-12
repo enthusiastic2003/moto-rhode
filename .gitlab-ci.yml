@@ -1,0 +1,47 @@
+include:
+  - https://gitlab.com/ubports/porting/community-ports/halium-generic-adaptation-build-tools/-/raw/halium-12/gsi-port-ci.yml
+
+variables:
+  ADAPTATION_TOOLS_BRANCH: halium-12
+  DEV_TARBALL_VARIANT: _usrmerge
+  ROOTFS_URL: "https://ci.ubports.com/job/focal-hybris-rootfs-arm64/job/master/lastSuccessfulBuild/artifact/ubuntu-touch-android9plus-rootfs-arm64.tar.gz"
+  OTA_CHANNEL: "20.04/arm64/android9plus/stable"
+
+# create fastboot flashable super.img
+devel-bootloader-flashable:
+  stage: deploy
+  needs: [ "devel-flashable" ]
+  when: manual
+  script: |
+    set -e
+
+    apt update
+    apt install -y \
+      build-essential clang git img2simg jq sudo unzip wget xz-utils zlib1g-dev
+
+    # Parallelize getting dependencies
+    (
+      git clone --depth=1 https://github.com/LonelyFool/lpunpack_and_lpmake.git
+      cd lpunpack_and_lpmake && ./make.sh
+    ) &
+    (
+      wget --no-verbose https://volla.tech/filedump/ubuntu-touch-vidofnyr-firmware-s.tar.xz
+      tar xvJf ubuntu-touch-vidofnyr-firmware-s.tar.xz
+    ) &
+    # Use wait -n so that errors are propagated.
+    wait -n
+    wait -n
+
+    ./lpunpack_and_lpmake/bin/lpmake \
+      --metadata-size 65536 --metadata-slots 2 \
+      --sparse --super-name super \
+      --device super:9663676416 --group ubuntu:9659482112 \
+      --partition system_a:none:8585740288:ubuntu \
+      --partition vendor_a:none:1073741824:ubuntu \
+      --image 'system_a=out/ubuntu.img' \
+      --image 'vendor_a=partitions/vendor.img' \
+      --output out/super.img
+  artifacts:
+    paths:
+      - out/boot.img
+      - out/super.img

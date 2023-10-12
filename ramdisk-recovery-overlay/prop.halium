@@ -1,0 +1,2 @@
+# The device has dynamic partitions
+ro.boot.dynamic_partitions=true

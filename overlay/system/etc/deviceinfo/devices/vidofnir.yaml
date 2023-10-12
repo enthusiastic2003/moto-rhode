@@ -1,0 +1,18 @@
+vidofnir:
+  Vendor: Volla
+  PrettyName: Volla Phone X23
+  DeviceType: phone
+  GridUnit: 14
+  SupportedOrientations:
+    - Portrait
+    - Landscape
+    - InvertedLandscape
+  MirAndroidPlatformServerPartialUpdates:
+    - false
+  MirAndroidPlatformServerBackpressure:
+    - true
+  MirAndroidPlatformServerEglSync:
+    - true
+  MirAndroidPlatformClientEglFlush:
+    - all
+  VibrateDurationExtraMs: 40
